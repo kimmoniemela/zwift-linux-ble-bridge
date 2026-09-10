@@ -1,0 +1,10 @@
+# Installation template: replace both placeholders with absolute paths.
+[Desktop Entry]
+Type=Application
+Name=QZ — Native Bluetooth Bridge
+Comment=Connect cycling equipment through native Linux Bluetooth
+Exec="@QZ_LAUNCHER@"
+Icon=@QZ_ICON@
+Terminal=false
+Categories=Utility;Sports;
+StartupNotify=true

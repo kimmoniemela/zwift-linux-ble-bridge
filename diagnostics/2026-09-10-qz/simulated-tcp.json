@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Wahoo\\032HRM",
+    "host": "Wahoo-HRM.local",
+    "address": "<host-ip>",
+    "port": 36867,
+    "tcp_connect": "passed",
+    "txt": [
+      "\"ble-service-uuids=0000180d-0000-1000-8000-00805F9B34FB\" \"mac-address=<virtual-mac>\" \"serial-number=1\""
+    ]
+  },
+  {
+    "name": "Wahoo\\032KICKR\\0329909",
+    "host": "Wahoo-KICKR-9909.local",
+    "address": "<host-ip>",
+    "port": 36866,
+    "tcp_connect": "passed",
+    "txt": [
+      "\"ble-service-uuids=00001826-0000-1000-8000-00805F9B34FB,00001818-0000-1000-8000-00805F9B34FB,00001816-0000-1000-8000-00805F9B34FB\" \"mac-address=<virtual-mac>\" \"serial-number=0\""
+    ]
+  }
+]

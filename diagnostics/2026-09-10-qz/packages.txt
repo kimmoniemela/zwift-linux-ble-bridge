@@ -1,0 +1,15 @@
+qt5-base 5.15.19+kde+r96-1.1
+qt5-declarative 5.15.19+kde+r23-1.1
+bluez 5.87-2.1
+bluez-libs 5.87-2.1
+qt5-location 5.15.19+kde+r7-1
+qt5-networkauth 5.15.19-1.1
+qt5-websockets 5.15.19+kde+r2-1
+qt5-speech 5.15.19+kde+r1-1.1
+qt5-multimedia 5.15.19+kde+r2-1.1
+qt5-quickcontrols2 5.15.19+kde+r5-1.1
+qt5-quickcontrols 5.15.19-1.1
+qt5-graphicaleffects 5.15.19-1.1
+qt5-tools 5.15.19+kde+r3-1.1
+qt5-connectivity 5.15.19-2
+qt5-charts 5.15.19-1

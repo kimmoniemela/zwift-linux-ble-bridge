@@ -1,0 +1,8 @@
++;wlan0;IPv6;Wahoo\032HRM;_wahoo-fitness-tnp._tcp;local
++;wlan0;IPv6;Wahoo\032KICKR\0329909;_wahoo-fitness-tnp._tcp;local
++;wlan0;IPv4;Wahoo\032HRM;_wahoo-fitness-tnp._tcp;local
++;wlan0;IPv4;Wahoo\032KICKR\0329909;_wahoo-fitness-tnp._tcp;local
+=;wlan0;IPv6;Wahoo\032HRM;_wahoo-fitness-tnp._tcp;local;Wahoo-HRM.local;<host-ip>;36867;"ble-service-uuids=0000180d-0000-1000-8000-00805F9B34FB" "mac-address=<virtual-mac>" "serial-number=1"
+=;wlan0;IPv6;Wahoo\032KICKR\0329909;_wahoo-fitness-tnp._tcp;local;Wahoo-KICKR-9909.local;<host-ip>;36866;"ble-service-uuids=00001826-0000-1000-8000-00805F9B34FB,00001818-0000-1000-8000-00805F9B34FB,00001816-0000-1000-8000-00805F9B34FB" "mac-address=<virtual-mac>" "serial-number=0"
+=;wlan0;IPv4;Wahoo\032HRM;_wahoo-fitness-tnp._tcp;local;Wahoo-HRM.local;<host-ip>;36867;"ble-service-uuids=0000180d-0000-1000-8000-00805F9B34FB" "mac-address=<virtual-mac>" "serial-number=1"
+=;wlan0;IPv4;Wahoo\032KICKR\0329909;_wahoo-fitness-tnp._tcp;local;Wahoo-KICKR-9909.local;<host-ip>;36866;"ble-service-uuids=00001826-0000-1000-8000-00805F9B34FB,00001818-0000-1000-8000-00805F9B34FB,00001816-0000-1000-8000-00805F9B34FB" "mac-address=<virtual-mac>" "serial-number=0"
