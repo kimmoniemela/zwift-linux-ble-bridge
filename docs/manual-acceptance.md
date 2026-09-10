@@ -1,24 +1,18 @@
 # Manual acceptance gates
 
-Native QZ installation, application startup, BLE discovery and an isolated simulated DIRCON transport check are complete; see [installed QZ](qz-installed.md). The user has also observed live Zwift Hub watts/cadence in QZ and watts in Zwift through DIRCON. Control, heart rate and reliability gates remain pending unless explicitly recorded as passed with evidence in the investigation log.
+Native QZ installation, application startup, BLE discovery and an isolated simulated DIRCON transport check are complete; see [installed QZ](qz-installed.md). The user has also observed live Zwift Hub watts/cadence in QZ, watts in Zwift through DIRCON and trainer resistance response. Formal ERG/SIM control acceptance, heart rate and reliability gates remain pending unless explicitly recorded as passed with evidence in the investigation log.
 
 Target equipment: **Zwift Hub** and **Garmin HRM-Dual**. Capture firmware and exact advertised device names during later diagnostics; do not invent names or addresses in configuration.
 
 ## 1. Zwift baseline
 
-Use the installed upstream `zwift` launcher. Review the host configuration in `config/netbrain-zwift.conf`; it selects rootless Podman, host networking and the NVIDIA GPU through CDI. Do not use privileged mode or expose system Bluetooth to Wine.
+Use the installed upstream `zwift` launcher. Review the host configuration in `config/netbrain-zwift.conf`; it selects rootless Podman and host networking. NVIDIA CDI setup is optional and documented in the [installation guide](dependencies.md). Do not use privileged mode or expose system Bluetooth to Wine.
 
 Confirm a visible Zwift application window and then the pairing screen, with QZ stopped. Handle account login locally; never put credentials in this repository or chat. Upstream also supports credentials in its private user configuration because its Wine launcher login page has limitations; use its documented authentication route if necessary, with restrictive file permissions and debugging disabled. Record the upstream launcher revision, container image digest and `podman inspect --format '{{.HostConfig.NetworkMode}}' zwift-kimmo`. An exited container, successful image pull or launcher success message alone does not pass this gate.
 
 ## 2. Native QZ and trainer only
 
-After gate 1, install the mapped native Qt dependencies and build upstream QZ. The reviewed repository package transaction is:
-
-```sh
-sudo pacman -S --needed qt5-location qt5-networkauth qt5-websockets qt5-speech qt5-multimedia qt5-quickcontrols2 qt5-quickcontrols qt5-graphicaleffects qt5-tools
-```
-
-This transaction was executed successfully, along with the reviewed AUR Qt Bluetooth/Charts builds, on September 10. On a fresh host, recheck package state and build the AUR packages as an ordinary user. The installed QZ build removes upstream's blanket root gate; it does not grant elevated system permissions. Preserve native package lists before/after to make rollback precise; do not blindly remove shared Qt dependencies.
+After gate 1, install every mapped package and build upstream QZ using the [installation guide](dependencies.md). The repository packages and reviewed AUR Qt Bluetooth/Charts builds were installed successfully on September 10. On a fresh host, recheck package state and build the AUR packages as an ordinary user. The installed QZ build removes upstream's blanket root gate; it does not grant elevated system permissions. Preserve native package lists before/after to make rollback precise; do not blindly remove shared Qt dependencies.
 
 Use the current app-only source project, initialize its SMTP submodule and generate translation resources if required. Run qmake and make as the desktop user. Optional HTTP-server support is separate from DIRCON; do not make it a prerequisite without a demonstrated need.
 

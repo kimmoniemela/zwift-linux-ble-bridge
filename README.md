@@ -20,6 +20,18 @@ Tested with a Zwift Hub: BLE connection, watts, cadence, DIRCON discovery and re
 
 This is a working experiment, not yet a one-command installer.
 
+## Install
+
+The tested platform is Arch-based CachyOS. After installing Linux itself:
+
+1. Install BlueZ, rootless Podman, build tools and the listed Qt packages.
+2. Review and build the AUR packages `qt5-connectivity` and `qt5-charts` as a normal user.
+3. Install upstream netbrain/zwift and copy this repository's host-network configuration.
+4. Build the tested QZ revision, apply the included normal-user patch and install the launcher/configuration.
+5. Optionally configure NVIDIA Container Toolkit.
+
+All commands and the complete package list are in **[Install on Arch/CachyOS](docs/dependencies.md)**. The guide starts after the Linux operating system and graphical desktop are installed.
+
 ## Run
 
 1. Start `qz` and leave it open.
@@ -44,6 +56,6 @@ Built on Arch-based CachyOS. `qt5-connectivity` and `qt5-charts` came from revie
 
 ## Details
 
-[Dependencies](docs/dependencies.md) · [setup notes](docs/qz-installed.md) · [acceptance tests](docs/manual-acceptance.md) · [upstream findings](docs/upstream-findings.md) · [investigation log](docs/investigation.md) · [rollback](docs/host-changes.md)
+[Installation](docs/dependencies.md) · [setup notes](docs/qz-installed.md) · [acceptance tests](docs/manual-acceptance.md) · [upstream findings](docs/upstream-findings.md) · [investigation log](docs/investigation.md) · [rollback](docs/host-changes.md)
 
 The repository is licensed under [GPL-3.0](LICENSE). The included QZ patch removes an unconditional root check; it adds no protocol code or privileges. Upstream projects retain their own licences. Never commit Zwift binaries, credentials, container data or personal ride logs.
