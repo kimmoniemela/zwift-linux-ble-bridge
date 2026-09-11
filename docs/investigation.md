@@ -100,3 +100,12 @@ Hypothesis: enabling NVIDIA graphics may improve rendering performance; this doe
 Experiment: installed the native distribution toolkit, used its generated CDI device, configured NVIDIA graphics selection in the existing upstream launcher's user configuration. A first Vulkan probe lacked desktop access and failed; repeated with the X11 socket and existing authentication.
 Result: rootless Zwift-image GPU visibility and Vulkan initialization pass; Vulkan enumerates only the Quadro T2000 with NVIDIA 610.57.04. No game performance measurement yet.
 Decision: retain NVIDIA configuration for the next `zwift` launch. Investigate trainer control separately; leave native QZ and Bluetooth untouched. See `docs/host-changes.md` for backup and reversal.
+
+## 2026-09-11 — Missing activity feed entries
+
+- Observation: saved test rides were absent from the Zwift website activity feed.
+- Evidence: two finalized FIT files survived container removal in the persistent Podman volume. Local logs contain final save/upload attempts and the save screen reaching Done.
+- Hypothesis: short test rides fall below Zwift's minimum cycling distance for feed publication.
+- Experiment: decode both FIT session summaries with CRC validation and compare their distances with the local log summaries and [Zwift support's 2 km requirement](https://forums.zwift.com/t/not-saving-rides/652618/4).
+- Result: both files pass CRC validation and both distances are below 2 km. The evidence supports the distance threshold explanation; it does not prove feed publication for a qualifying ride.
+- Decision: no runtime configuration change. Add a 3 km save-and-feed check to the README and acceptance gates. Keep personal FIT files and raw logs outside the repository.

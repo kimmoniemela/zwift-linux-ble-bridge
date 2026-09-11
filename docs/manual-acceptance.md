@@ -6,13 +6,13 @@ Target equipment: **Zwift Hub** and **Garmin HRM-Dual**. Capture firmware and ex
 
 ## 1. Zwift baseline
 
-Use the installed upstream `zwift` launcher. Review the host configuration in `config/netbrain-zwift.conf`; it selects rootless Podman and host networking. NVIDIA CDI setup is optional and documented in the [installation guide](dependencies.md). Do not use privileged mode or expose system Bluetooth to Wine.
+Use the installed upstream `zwift` launcher. Review the host configuration in `config/netbrain-zwift.conf`; it selects rootless Podman and host networking. NVIDIA CDI setup is optional and documented in the [installation guide](../README.md#1-install). Do not use privileged mode or expose system Bluetooth to Wine.
 
 Confirm a visible Zwift application window and then the pairing screen, with QZ stopped. Handle account login locally; never put credentials in this repository or chat. Upstream also supports credentials in its private user configuration because its Wine launcher login page has limitations; use its documented authentication route if necessary, with restrictive file permissions and debugging disabled. Record the upstream launcher revision, container image digest and `podman inspect --format '{{.HostConfig.NetworkMode}}' zwift-kimmo`. An exited container, successful image pull or launcher success message alone does not pass this gate.
 
 ## 2. Native QZ and trainer only
 
-After gate 1, install every mapped package and build upstream QZ using the [installation guide](dependencies.md). The repository packages and reviewed AUR Qt Bluetooth/Charts builds were installed successfully on September 10. On a fresh host, recheck package state and build the AUR packages as an ordinary user. The installed QZ build removes upstream's blanket root gate; it does not grant elevated system permissions. Preserve native package lists before/after to make rollback precise; do not blindly remove shared Qt dependencies.
+After gate 1, install every mapped package and build upstream QZ using the [installation guide](../README.md#1-install). The repository packages and reviewed AUR Qt Bluetooth/Charts builds were installed successfully on September 10. On a fresh host, recheck package state and build the AUR packages as an ordinary user. The installed QZ build removes upstream's blanket root gate; it does not grant elevated system permissions. Preserve native package lists before/after to make rollback precise; do not blindly remove shared Qt dependencies.
 
 Use the current app-only source project, initialize its SMTP submodule and generate translation resources if required. Run qmake and make as the desktop user. Optional HTTP-server support is separate from DIRCON; do not make it a prerequisite without a demonstrated need.
 
@@ -57,7 +57,11 @@ For a BLE cycling power meter such as Favero Assioma, wake the sensor and select
 
 Verify the complete split path independently: pedal power/cadence → QZ → DIRCON → Zwift, and Zwift ERG/SIM commands → QZ → trainer. External-power ERG uses QZ's power-matching logic, so repeat target-change tests and watch for oscillation, lag or an incorrect offset. Perform any activation, firmware update and calibration/zero offset through the meter manufacturer's supported procedure; QZ selecting the sensor does not calibrate it.
 
-## 6. Reliability and orchestration
+## 6. Activity saving
+
+Ride at least 3 km, select End Ride and Save, and confirm the activity appears on the Zwift website. Zwift requires at least 2 km for a cycling activity to appear in its feed; short tests cannot pass this gate. Quit the game normally and wait for the launcher to finish synchronizing. Verify the finalized FIT file survives in the persistent Podman volume after the container exits. Local FIT creation, an upload attempt and a visible feed entry are separate checks.
+
+## 7. Reliability and orchestration
 
 Run a normal-length ride with timestamped telemetry/control evidence, then exercise one fault at a time: trainer power cycle, BLE reconnect, DIRCON client disconnect/reconnect, QZ restart, Zwift restart, mDNS interruption, multiple sensors and suspend/resume if relevant. Define expected reconnection behavior before each experiment and record recovery time/data gaps.
 

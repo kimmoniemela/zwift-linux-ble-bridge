@@ -1,61 +1,93 @@
 # zwift-linux-ble-bridge
 
-Experimental phone-free Bluetooth bridge for Zwift on Linux:
+Bluetooth trainers and sensors → **native QZ on Linux** → **DIRCON** → **Zwift**. No Zwift Companion phone bridge needed.
 
-```text
-BLE trainer and heart-rate monitor
-  → Linux BlueZ
-  → native QDomyos-Zwift (QZ)
-  → Wahoo DIRCON/WFTNP
-  → Zwift in upstream netbrain/zwift with host networking
+This uses [netbrain/zwift](https://github.com/netbrain/zwift) for the game and adds [QDomyos-Zwift (QZ)](https://github.com/cagnulein/qdomyos-zwift) for Bluetooth. Handy when travelling and using your phone as the laptop's internet hotspot.
+
+## Requirements
+
+- **Arch/CachyOS, x86-64**, with a working graphical desktop and graphics driver. Other distributions are not supported by this installer yet.
+- Bluetooth adapter, compatible BLE trainer, internet connection and Zwift account.
+- 8 GB RAM and at least 15 GB free for Zwift, plus QZ build space.
+- An up-to-date system and access to `sudo`. Run the installer as your **normal desktop user**.
+
+## 1. Install
+
+Open a terminal and run:
+
+```bash
+sudo pacman -S --needed git
+git clone https://github.com/kimmoniemela/zwift-linux-ble-bridge.git
+cd zwift-linux-ble-bridge
+./install.sh
 ```
 
-Linux owns Bluetooth. [QDomyos-Zwift](https://github.com/cagnulein/qdomyos-zwift) (QZ) runs natively and presents the devices to Zwift as a network trainer. Zwift runs through unmodified [netbrain/zwift](https://github.com/netbrain/zwift) with rootless Podman and host networking.
+The installer installs the dependencies, enables Bluetooth/Avahi, builds native QZ, runs the **upstream netbrain/zwift installer**, and configures host networking and DIRCON. With a loaded proprietary NVIDIA driver it also installs NVIDIA Container Toolkit. It preserves existing binaries and settings; if it leaves `.zwift-linux-example` files, compare those with your configuration before riding.
 
-This is especially useful away from home when the phone is providing the Linux machine's internet hotspot and is unavailable or undesirable as a Zwift Companion Bluetooth bridge. The phone supplies internet only; trainer and sensor connections remain on Linux.
+**AUR:** `qt5-connectivity` and `qt5-charts` come from reviewed, pinned AUR recipes when unavailable in the repositories. The installer opens each missing package's recipe for review (`q` to exit), asks before building it, and uses `makepkg` as your normal user. Downloads and compilation can take a while; progress and a private log path are shown.
 
-## Current status
+Use `./install.sh --check` to preview dependencies and actions without changes, or `./install.sh --jobs 4` to build with four workers (default: two). If a step fails, read the reported error and rerun after resolving it. The installer does not upgrade existing QZ or Zwift launchers.
 
-Tested with a Zwift Hub: BLE connection, watts, cadence, DIRCON discovery and resistance response work. NVIDIA CDI is verified with a Quadro T2000. Manual calibration through this path, Garmin HRM-Dual, external power meters and long-ride reliability remain unverified.
+## 2. Set up Zwift login
 
-This is a working experiment, not yet a one-command installer.
+In a **Bash terminal**, make the installed commands available:
 
-## Install
-
-The tested platform is Arch-based CachyOS. After installing Linux itself:
-
-1. Install BlueZ, rootless Podman, build tools and the listed Qt packages.
-2. Review and build the AUR packages `qt5-connectivity` and `qt5-charts` as a normal user.
-3. Install upstream netbrain/zwift and copy this repository's host-network configuration.
-4. Build the tested QZ revision, apply the included normal-user patch and install the launcher/configuration.
-5. Optionally configure NVIDIA Container Toolkit.
-
-All commands and the complete package list are in **[Install on Arch/CachyOS](docs/dependencies.md)**. The guide starts after the Linux operating system and graphical desktop are installed.
-
-## Run
-
-1. Start `qz` and leave it open.
-2. Start `zwift`.
-3. Pair the QZ network trainer; do not select **Pair Through Phone**.
-
-## Optional external power meter
-
-QZ can combine power and cadence from a BLE meter such as Favero Assioma with resistance control from the trainer:
-
-```text
-BLE power meter → power and cadence ┐
-                                    ├→ QZ → DIRCON → Zwift
-BLE smart trainer → resistance      ┘
+```bash
+export PATH="$HOME/.local/bin:$PATH"
 ```
 
-In QZ, select the awake meter under **Settings → Accessories → Power Sensor Options → Power Sensor**, then restart QZ. Keep the trainer as the main bike and pair only QZ in Zwift. Verify live power/cadence and retest ERG and SIM; external-meter power matching has not yet been tested here. Calibrate the meter with its manufacturer's supported method.
+Add that line to `~/.bashrc` if needed for future Bash terminals. Skip the next block if your existing Zwift login already works. Otherwise enter your account details when prompted; your password is hidden and stored as a Podman secret:
 
-## Arch and AUR note
+```bash
+read -r -p 'Zwift email: ' zwift_email
+read -r -s -p 'Zwift password: ' zwift_password
+printf '\n'
+if printf '%s' "$zwift_password" | podman secret create --replace=true "zwift-password-$zwift_email" -; then
+    printf 'ZWIFT_USERNAME=%q\n' "$zwift_email" >> "$HOME/.config/zwift/config"
+else
+    printf 'Could not store login. Resolve the Podman error before starting Zwift.\n'
+fi
+unset zwift_password
+unset zwift_email
+```
 
-Built on Arch-based CachyOS. `qt5-connectivity` and `qt5-charts` came from reviewed **AUR PKGBUILDs** because they were absent from the configured repositories. AUR content is user-produced: review the PKGBUILD and sources, then build as a normal user. Exact revisions are in [upstream findings](docs/upstream-findings.md).
+Once login is stored, run `zwift`. The first launch downloads the game container. Wait for it to reach the home/pairing screen, then quit normally. The Wine launcher login page has limitations, which is why we use upstream's account/secret support above. [Upstream setup and troubleshooting](https://github.com/netbrain/zwift/tree/master/docs).
 
-## Details
+## 3. Connect the trainer
 
-[Installation](docs/dependencies.md) · [setup notes](docs/qz-installed.md) · [acceptance tests](docs/manual-acceptance.md) · [upstream findings](docs/upstream-findings.md) · [investigation log](docs/investigation.md) · [rollback](docs/host-changes.md)
+1. Power the trainer and disconnect other apps that might claim its Bluetooth connection.
+2. Run `qz`. If it does not select your trainer, use **Settings → Advanced Settings → Manual Device**, select it, click **OK**, and restart QZ. Use **Refresh Devices List** if needed.
+3. Pedal until QZ shows changing **watts and cadence**. Keep QZ open.
+4. Run `zwift` in another terminal. Pair QZ's **Wahoo KICKR …** network device for **Power Source**, **Resistance / Controllable**, and **Cadence**. Do not select **Pair Through Phone**.
 
-The repository is licensed under [GPL-3.0](LICENSE). The included QZ patch removes an unconditional root check; it adds no protocol code or privileges. Upstream projects retain their own licences. Never commit Zwift binaries, credentials, container data or personal ride logs.
+## 4. Verify your first ride
+
+Check live watts/cadence in Zwift, then test changing ERG targets and a gradient change in free ride. Resistance should respond in both cases.
+
+Ride **3 km**, choose **End Ride → Save**, and check the Zwift website feed. Cycling activities must reach **2 km** to appear online ([Zwift support](https://forums.zwift.com/t/not-saving-rides/652618/4)); short connection tests may only leave local FIT files. Quit Zwift normally and wait for its terminal to return before closing QZ.
+
+**Every ride:** start `qz`, wait for live trainer data, then start `zwift`. Keep QZ open until the ride is saved and Zwift has exited.
+
+## Optional sensors
+
+In QZ's **Settings**, choose the awake sensor, click **OK**, and restart QZ:
+
+- **Heart rate:** **Heart Rate Options → Heart Belt Name**. Verify live HR in QZ, then select QZ's HR source in Zwift (it may appear as **Wahoo HRM**).
+- **Favero Assioma or another BLE power meter:** **Accessories → Power Sensor Options → Power Sensor**. Keep the trainer as the main device for resistance. Verify the intended power source and retest ERG/SIM; calibrate the meter using its manufacturer's supported method.
+
+## Troubleshooting
+
+| Problem | First check |
+| --- | --- |
+| Trainer missing in QZ | Wake it, disconnect competing apps; check `bluetoothctl list` and `rfkill list bluetooth`. |
+| QZ has watts; Zwift sees no device | Confirm `NETWORKING="host"` in `~/.config/zwift/config`. Run `avahi-browse --resolve --terminate --parsable _wahoo-fitness-tnp._tcp` and compare the advertised port with `ss -lntp`. Keep the firewall enabled. |
+| Low NVIDIA performance | Check `nvidia-smi` and `nvidia-ctk cdi list`; see [hybrid GPU settings](docs/dependencies.md#hybrid-nvidia-laptops). |
+| Ride missing online | Check distance (2 km minimum) and whether Save completed. Local FIT files are in `Activities` under the path from `podman volume inspect "zwift-$USER" --format '{{.Mountpoint}}'`. |
+
+## Status and credits
+
+Tested manually on CachyOS with a Zwift Hub: BLE telemetry, DIRCON pairing and resistance response. NVIDIA CDI works with a Quadro T2000. **The installer has automated safety checks but still needs a fresh-machine installation test.** Garmin HRM-Dual, external meters, isolated ERG/SIM acceptance and long-ride reliability remain unverified. Manual calibration and Click/Play are not established through this bridge.
+
+[Dependencies and installer details](docs/dependencies.md) · [Acceptance tests](docs/manual-acceptance.md) · [Upstream evidence](docs/upstream-findings.md) · [Investigation log](docs/investigation.md) · [Rollback](docs/host-changes.md)
+
+[GPL-3.0](LICENSE). This wrapper uses upstream netbrain/zwift and QZ with a small patch removing its unconditional Linux root check. Preserve applicable QZ source/licensing obligations when distributing patched builds. Keep credentials, Zwift binaries and personal ride files out of this repository.
